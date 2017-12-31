@@ -1,7 +1,9 @@
-package edu.colostate.ember.util;
+package edu.colostate.ember.preprocessing;
 
 import edu.colostate.ember.nlp.QuestionLexParser;
 import edu.colostate.ember.nlp.Sentenizer;
+import edu.colostate.ember.util.StaticFields;
+import edu.colostate.ember.util.TextUtil;
 import edu.stanford.nlp.trees.Tree;
 
 import java.io.*;
