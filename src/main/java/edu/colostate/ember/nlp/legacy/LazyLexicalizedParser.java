@@ -1,30 +1,31 @@
-package edu.colostate.ember.nlp.lazy;
+package edu.colostate.ember.nlp.legacy;
 
 import edu.colostate.ember.util.StaticFields;
 import edu.stanford.nlp.parser.common.ParserGrammar;
 import edu.stanford.nlp.parser.lexparser.LexicalizedParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.util.parsing.combinator.lexical.Lexical;
 
 public class LazyLexicalizedParser {
 
     private static Logger logger = LoggerFactory.getLogger(LazyLexicalizedParser.class);
-    private ParserGrammar pg;
+    private LexicalizedParser lexicalizedParser;
 
     private LazyLexicalizedParser() {
 
-        logger.info("Initializing lexical parser w/ default model");
-        pg = LexicalizedParser.loadModel(StaticFields.LEXPARSER_MODEL);
-        logger.info("Loaded default lex-parser");
+        logger.debug("Initializing lexical parser w/ default model");
+        lexicalizedParser = LexicalizedParser.loadModel(StaticFields.LEXPARSER_MODEL);
+        logger.debug("Loaded default lex-parser");
 
     }
 
-    public static ParserGrammar getInstance() {
+    public static LexicalizedParser getInstance() {
         return LazyLexicalizedParserHolder.INSTANCE;
     }
 
     private static class LazyLexicalizedParserHolder {
-        static final ParserGrammar INSTANCE = (new LazyLexicalizedParser()).pg;
+        static final LexicalizedParser INSTANCE = (new LazyLexicalizedParser()).lexicalizedParser;
     }
 
 }

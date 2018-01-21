@@ -1,4 +1,4 @@
-package edu.colostate.ember.nlp.lazy;
+package edu.colostate.ember.nlp.legacy;
 
 import edu.colostate.ember.util.StaticFields;
 import edu.stanford.nlp.parser.common.ParserGrammar;
@@ -8,14 +8,14 @@ import org.slf4j.LoggerFactory;
 
 public class LazyReduceShiftLexParser {
 
-    private static Logger logger = LoggerFactory.getLogger(LazyLexicalizedParser.class);
+    private static Logger logger = LoggerFactory.getLogger(LazyReduceShiftLexParser.class);
     private ParserGrammar pg;
 
     private LazyReduceShiftLexParser() {
 
-        logger.info("Initializing lexical parser w/ reduce shift model");
+        logger.debug("Initializing lexical parser w/ reduce shift model");
         pg = LexicalizedParser.loadModel(StaticFields.SHIFTPARSER_MODEL);
-        logger.info("Loaded shift lex-parser");
+        logger.debug("Loaded shift lex-parser");
 
     }
 

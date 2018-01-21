@@ -1,16 +1,26 @@
 package edu.colostate.ember.preprocessing;
 
 import edu.colostate.ember.nlp.QuestionLexParser;
+import edu.colostate.ember.nlp.SentenceTokenizer;
 import edu.colostate.ember.nlp.Sentenizer;
+import edu.colostate.ember.nlp.legacy.LazyPOSTagger;
 import edu.colostate.ember.util.StaticFields;
 import edu.colostate.ember.util.TextUtil;
+import edu.stanford.nlp.process.PTBTokenizer;
+import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 import edu.stanford.nlp.trees.Tree;
+import org.apache.commons.math3.analysis.function.Add;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class AddHealthUtil {
+
+    private static Logger logger = LoggerFactory.getLogger(AddHealthUtil.class);
+
 
     private static String parsingBrackets(String input, QuestionLexParser qp) {
         List<String> brackets = TextUtil.extractPatterns(input, StaticFields.BRACKETORPAREN_PATTERN);
@@ -48,13 +58,14 @@ public class AddHealthUtil {
         String ref = "";
         String main_text = "";
 
+        MaxentTagger postagger = LazyPOSTagger.getInstance();
 
         QuestionLexParser qp = new QuestionLexParser();
 
 //        qp.loadShiftReduceModel();
         File out = new File(StaticFields.ADDHEALTH_INTERMEDIATE_PATH);
         if (out.exists()) {
-            System.out.println(StaticFields.ADDHEALTH_INTERMEDIATE_PATH + " exists, deleted");
+            logger.warn(StaticFields.ADDHEALTH_INTERMEDIATE_PATH + " exists, deleted");
             out.delete();
         }
 
@@ -109,9 +120,23 @@ public class AddHealthUtil {
     }
 
 
-    public static void main(String[] args) throws IOException {
-        phase1();
+    public static void phase2() {
+        logger.trace("Starting phase2...");
+
     }
+
+    public static void main(String[] args) throws IOException {
+//        phase1();
+
+        MaxentTagger postagger = LazyPOSTagger.getInstance();
+        String sentence = "which grades have you skipped (check all that apply): fourth grade";
+        SentenceTokenizer tokenizer = new SentenceTokenizer(sentence);
+
+        List words = postagger.tagSentence(tokenizer.tokenize());
+        System.out.println(words);
+
+    }
+
 
 
 }

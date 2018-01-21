@@ -12,6 +12,8 @@ public class StaticFields {
     public static final String NLSY_RAW_PATH = "data/input/nlsy_response";
     public static final String NLSY_INPUT_PATH = "data/input/NLSY_question_text_response";
     public static final String NLSY_INTERMEDIATE_PATH = "data/intermediate/nlsy_interm";
+    public static final String ADDHEALTH_INTERMEDIATE2_PATH = "data/intermediate_2/add_health";
+    public static final String NLSY_INTERMEDIATE2_PATH = "data/intermediate_2/nlsy";
     // model path
     public static final String LEXPARSER_MODEL = "model/edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz";
     public static final String SHIFTPARSER_MODEL = "model/edu/stanford/nlp/models/srparser/englishSR.ser.gz";

@@ -276,7 +276,7 @@ public class NLSYUtil {
 
     public static void main(String[] args) throws IOException {
 //        phase1();
-        phase2();
+//        phase2();
     }
 
 }

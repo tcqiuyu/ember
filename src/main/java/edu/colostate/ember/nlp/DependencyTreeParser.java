@@ -19,7 +19,7 @@ import java.util.List;
 
 public class DependencyTreeParser {
 
-    private static Logger logger = LoggerFactory.getLogger(DependencyParser.class);
+    private static Logger logger = LoggerFactory.getLogger(DependencyTreeParser.class);
     private MaxentTagger tagger;
     private DependencyParser dependencyParser;
 
@@ -31,7 +31,7 @@ public class DependencyTreeParser {
     }
 
     public DependencyTreeNode parseDependencyTree(String input) {
-        logger.trace("Parsing dependency tree from input:" + input);
+        logger.trace("Parsing dependency tree from input: \"" + input + "\"");
         List<? extends HasWord> words = new SentenceTokenizer(input).tokenize();
         List<TaggedWord> taggedWords = tagger.tagSentence(words);
         GrammaticalStructure gs = dependencyParser.predict(taggedWords);
@@ -44,5 +44,23 @@ public class DependencyTreeParser {
         return dependencyTree;
     }
 
+    public Collection<DependencyTreeNode> getDependencyTreeNodeByLevel(DependencyTreeNode root, int level) {
+        logger.trace("Get nodes from dependency tree at level " + level);
 
+        if (root.getLevel() != 0) {
+            logger.warn("Given node is not the root node. Node level is " + root.getLevel());
+        }
+
+        Collection<DependencyTreeNode> nodes = new ArrayList<>();
+        root.breadthFirstTraverse(node -> {
+            if (node.getLevel() == level) {
+                nodes.add(node);
+            }
+        });
+        return nodes;
+    }
+
+    public void printDependencyTree(DependencyTreeNode root) {
+        
+    }
 }

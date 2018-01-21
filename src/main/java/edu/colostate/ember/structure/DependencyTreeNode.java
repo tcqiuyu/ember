@@ -1,14 +1,16 @@
-
 package edu.colostate.ember.structure;
 
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.IndexedWord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
+import java.util.function.Consumer;
 
 public class DependencyTreeNode {
 
+    private static Logger logger = LoggerFactory.getLogger(DependencyTreeNode.class);
     private DependencyTreeNode parent;
     private DependencyTreeEdge parentEdge;
     private Collection<DependencyTreeNode> children;
@@ -17,6 +19,7 @@ public class DependencyTreeNode {
     private int level;
     private int wordIdx;
     private int depth;
+    private boolean lastSib; // mainly for print tree purpose
 
     public DependencyTreeNode(IndexedWord word) {
         this.word = word;
@@ -24,6 +27,14 @@ public class DependencyTreeNode {
         this.children = new ArrayList<>();
         this.edges = new ArrayList<>();
         this.level = 0;
+    }
+
+    public boolean isLastSib() {
+        return lastSib;
+    }
+
+    public void setLastSib(boolean lastSib) {
+        this.lastSib = lastSib;
     }
 
     public IndexedWord getWord() {
@@ -90,4 +101,41 @@ public class DependencyTreeNode {
     public void setDepth(int depth) {
         this.depth = depth;
     }
+
+    public void breadthFirstTraverse(Consumer<? super DependencyTreeNode> func) {
+//        logger.trace("Started breadth first traverse on node \"" + this.getWord().value() + "\"");
+        Queue<DependencyTreeNode> queue = new LinkedList<>();
+        queue.add(this);
+
+        while (!queue.isEmpty()) {
+            DependencyTreeNode tmpNode = queue.poll();
+            func.accept(tmpNode);
+
+            if (!tmpNode.children.isEmpty()) {
+                queue.addAll(tmpNode.children);
+            }
+        }
+    }
+
+    public void depthFirstTraverse(Consumer<? super DependencyTreeNode> func) {
+//        logger.trace("Started depth first traverse on node \"" + this.getWord().value() + "\"");
+        Stack<DependencyTreeNode> stack = new Stack<>();
+        stack.push(this);
+
+        while (!stack.isEmpty()) {
+            DependencyTreeNode tmpNode = stack.pop();
+
+            func.accept(tmpNode);
+            if (!tmpNode.children.isEmpty()) {
+                for (int i = tmpNode.children.size() - 1; i >= 0; i--) {
+                    stack.add(((ArrayList<DependencyTreeNode>) tmpNode.children).get(i));
+                }
+            }
+        }
+    }
+
+    public void simplePrintSubTree() {
+
+    }
+
 }

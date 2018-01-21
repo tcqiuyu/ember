@@ -85,4 +85,4 @@ data/
 model/
 lib/
 target/
-scripts/output
+python/output

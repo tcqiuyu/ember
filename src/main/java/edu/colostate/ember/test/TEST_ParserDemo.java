@@ -61,6 +61,7 @@ public class TEST_ParserDemo {
         String[] sent = {"This", "is", "an", "easy", "sentence", "."};
         List<CoreLabel> rawWords = SentenceUtils.toCoreLabelList(sent);
         Tree parse = lp.apply(rawWords);
+        System.out.println(parse.toString());
         parse.pennPrint();
         System.out.println();
 
@@ -83,6 +84,7 @@ public class TEST_ParserDemo {
         // You can also use a TreePrint object to print trees and dependencies
         TreePrint tp = new TreePrint("penn,typedDependenciesCollapsed");
         tp.printTree(parse);
+
     }
 
     /**
@@ -97,7 +99,7 @@ public class TEST_ParserDemo {
      * e.g.: java ParserDemo edu/stanford/nlp/models/lexparser/chineseFactored.ser.gz data/chinese-onesent-utf8.txt
      */
     public static void main(String[] args) {
-        String parserModel = "edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz";
+        String parserModel = "model/edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz";
         if (args.length > 0) {
             parserModel = args[0];
         }

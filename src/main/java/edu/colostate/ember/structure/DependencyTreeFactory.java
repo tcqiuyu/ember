@@ -2,15 +2,17 @@ package edu.colostate.ember.structure;
 
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.trees.TypedDependency;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.function.Consumer;
 
 public class DependencyTreeFactory {
 
+
+    private static Logger logger = LoggerFactory.getLogger(DependencyTreeFactory.class);
 
     public static DependencyTreeNode constructDependencyTree(ArrayList<TypedDependency> typedDependencies) {
         DependencyTreeNode[] node = new DependencyTreeNode[typedDependencies.size() + 1];
@@ -72,33 +74,15 @@ public class DependencyTreeFactory {
             }
         }
         int finalMaxDepth = maxDepth;
-        bfsDependencyTree(root, n -> {
+        root.breadthFirstTraverse(n -> {
             n.setDepth(finalMaxDepth - n.getLevel());
         });
     }
 
-    public static void bfsDependencyTree(DependencyTreeNode root, Consumer<? super DependencyTreeNode> func) {
-        Queue<DependencyTreeNode> queue = new LinkedList<>();
-        queue.add(root);
 
-        while (!queue.isEmpty()) {
-            DependencyTreeNode tmpNode = queue.poll();
-            func.accept(tmpNode);
+    private static void printTreeNode(DependencyTreeNode node, int startIdx) {
 
-            if (!tmpNode.getChildren().isEmpty()) {
-                queue.addAll(tmpNode.getChildren());
-            }
-        }
-    }
 
-    public static Collection<DependencyTreeNode> getDependencyTreeNodeByLevel(DependencyTreeNode root, int level) {
-        Collection<DependencyTreeNode> nodes = new ArrayList<>();
-        bfsDependencyTree(root, node -> {
-            if (node.getLevel() == level) {
-                nodes.add(node);
-            }
-        });
-        return nodes;
     }
 
     public static void main(String[] args) {

@@ -1,4 +1,4 @@
-package edu.colostate.ember.nlp.lazy;
+package edu.colostate.ember.nlp.legacy;
 
 import edu.colostate.ember.util.StaticFields;
 import edu.stanford.nlp.parser.nndep.DependencyParser;
@@ -13,9 +13,9 @@ public class LazyDependencyParser{
 
     private LazyDependencyParser() {
 
-        logger.info("Initializing dependency parser (lazily)");
+        logger.debug("Initializing dependency parser");
         parser = DependencyParser.loadFromModelFile(StaticFields.DEPENDENCY_PARSER_MODEL);
-        logger.info("Loaded dependency parser");
+        logger.debug("Loaded dependency parser");
 
     }
 

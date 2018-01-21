@@ -1,4 +1,4 @@
-package edu.colostate.ember.nlp.lazy;
+package edu.colostate.ember.nlp.legacy;
 
 import edu.colostate.ember.util.StaticFields;
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
@@ -7,14 +7,14 @@ import org.slf4j.LoggerFactory;
 
 public class LazyPOSTagger {
 
-    private static Logger logger = LoggerFactory.getLogger(LazyLexicalizedParser.class);
+    private static Logger logger = LoggerFactory.getLogger(LazyPOSTagger.class);
     private MaxentTagger tagger;
 
     private LazyPOSTagger() {
 
-        logger.info("Initializing POS tagger");
+        logger.debug("Initializing POS tagger");
         tagger = new MaxentTagger(StaticFields.POS_TAGGER_MODEL);
-        logger.info("Loaded POS tagger");
+        logger.debug("Loaded POS tagger");
 
     }
 
