@@ -10,11 +10,23 @@ class Node(ParentedTree):
 
 
     """
-    delta = 1
-    theta = 1
-    size = 0
-    depth = 0
-    is_terminal = None
+    # delta = 1
+    # theta = 1
+    # size = 0
+    # depth = 0
+    # index = 0
+    # children_list = []
+    # is_terminal = None
+
+    def __init__(self, node, children=None):
+        self.delta = 1
+        self.theta = 1
+        self.size = 0
+        self.depth = 0
+        self.index = 0
+        self.children_list = []
+        self.is_terminal = None
+        super().__init__(node, children)
 
     def _get_node(self):
         pass
@@ -48,7 +60,7 @@ class Node(ParentedTree):
         for _ in self.subtrees():
             self.size += 1
         # Because the subtrees returns the node itself, so need to subtract 1
-        self.size -= 1
+        # self.size -= 1
 
     def _update_theta(self):
         """
@@ -67,9 +79,19 @@ class Node(ParentedTree):
         :return:
         """
         for pos in self.treepositions():
-            node = tree[pos]
+            node = self[pos]
             if type(node) == Node:
                 node.depth = len(pos) + 1
+
+    def _update_index(self):
+        idx = 0
+        for tr in self.subtrees():
+            tr.index = idx
+            idx += 1
+
+    def _update_children(self):
+        for tr in self.subtrees(lambda t: t.depth == self.depth + 1):
+            self.children_list.append(tr)
 
     def update(self):
         child = self[0]
@@ -79,8 +101,9 @@ class Node(ParentedTree):
 
     def update_tree(self):
         self.depth_first_traverse(lambda n: n.update())
-        self.depth_first_traverse(lambda n: n._update_theta())
+        self._update_index()
         self._update_depth()
+        self.depth_first_traverse(lambda n: (n._update_theta(), n._update_children()))
 
     def depth_first_traverse(self, func):
         if type(self) == Node:
