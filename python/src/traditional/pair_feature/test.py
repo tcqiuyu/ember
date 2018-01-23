@@ -1,5 +1,5 @@
 from nltk.corpus import wordnet as wn
-from .wordnet import wn_overlap_score
+from traditional.pair_feature.wordnet import wn_overlap_score
 
 if __name__ == '__main__':
     sentence1 = "I am higher."

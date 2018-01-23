@@ -3,14 +3,6 @@ from nltk.tokenize import word_tokenize
 import math
 import numpy as np
 
-# delta = 1.2 where node i's POS tag is VB/NN
-# delta = 1.1 where node i's POS tag is VP/NP
-# delta = 1 otherwise
-delta = 0
-
-# theta is the production of all delta's for a tree fragment
-theta = 0
-
 # tuning param. indicating the importance of the size factor
 lmda = 0
 # tuning param. indicating the importance of the depth factor
@@ -35,6 +27,13 @@ def tree_weight(tree_fragment):
 #     return tree_weight(tree_fragment_1) * tree_weight(tree_fragment_2)
 
 def get_matched_tree_fragments(tree_fragment_1, tree_fragment_2):
+    """
+    get all matched tree fragments
+
+    :param tree_fragment_1:
+    :param tree_fragment_2:
+    :return:
+    """
     re = []
     return re
 
@@ -63,13 +62,17 @@ def node_matching_score(node1, node2):
 
     global matrix
 
+    # TODO: node1 == node2 means the production rule and the label are both the same, need to rewrite equal method
+    if node1 != node2:
+        score = 0
+        matrix[node1.index, node2.index] = score
+        return score
     if node1.is_terminal is True and node2.is_terminal is True:
         score = delta1 * delta2 * \
                 math.pow(lmda, s1 + s2) * \
                 math.pow(mu, d1 + d2)
         matrix[node1.index, node2.index] = score
         return score
-
     else:
         prefix = math.pow(delta1, eta) * math.pow(delta2, eta) * math.pow(lmda, 2 * eta) * \
                  math.pow(mu,
@@ -81,7 +84,6 @@ def node_matching_score(node1, node2):
                 score *= matrix[child1.index, child2.index]
             else:
                 score *= node_matching_score(node1.children[j], node2.children[j])
-
         score = prefix * score
         matrix[node1.index, node2.index] = score
         return score
@@ -112,16 +114,29 @@ def similarity_score(tree1, tree2):
                 score += node_matching_score(node1, node2)
             else:
                 score += matrix[node1.index, node2.index]
-    return
+    return score
 
 
+def normalized_simialrity_score(tree1, tree2):
+    """
+    Normalized similarity score betweeen two trees
+
+    :param tree1:
+    :param tree2:
+    :return:
+    """
+    return similarity_score(tree1, tree2) / math.sqrt(similarity_score(tree1, tree1) * similarity_score(tree2, tree2))
+
+
+# TODO
 def get_syntactic_prase_tree(sentence):
+    """
+
+    :param sentence:
+    :return:
+    """
     tokened_sentence = word_tokenize(sentence)
 
 
-def eval_pair_set():
-    return
-
-
 if __name__ == '__main__':
-    eval_pair_set()
+    print("Hello World!")

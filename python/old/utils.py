@@ -1,4 +1,4 @@
-localport = 27018  # local port for MongoDB
+localport = 27018     # local port for MongoDB
 remoteport = 27017  # remote server port for MongoDB
 identityfile = '../key/ssh/id_rsa'
 user = 'yqiu'
