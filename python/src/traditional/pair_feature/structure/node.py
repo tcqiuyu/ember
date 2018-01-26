@@ -93,7 +93,9 @@ class Node(ParentedTree):
 
     def _update_children(self):
         if self.is_terminal:
-            self.children_list.append(self[0])
+            # Ignore the word itself in order to compute similarity matrix
+            # self.children_list.append(self[0])
+            return
         for tr in self.subtrees(lambda t: t.depth == self.depth + 1):
             self.children_list.append(tr)
 
@@ -140,7 +142,6 @@ class Node(ParentedTree):
         frags = [self]
 
         if self.is_terminal:
-            frags.append(self[0])
             return frags
 
         leaves = []

@@ -23,6 +23,10 @@ def get_wordnet_pos(treebank_tag):
         return ''
 
 
+def wn_word_similarity(tagged_word1, tagged_word2):
+    return wn.synset(tagged_word1).path_similarity(wn.synset(tagged_word2))
+
+
 def _wn_word_sentence_score(wn_tagged_word, tokened_sentence):
     """
     Cacluate wordnet-based similarity score between a word and a given sentence

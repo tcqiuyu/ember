@@ -1,12 +1,14 @@
-from nltk import ChartParser
+from nltk import ChartParser, WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 import math
 import numpy as np
 
 # tuning param. indicating the importance of the size factor
-lmda = 2
+from traditional.pair_feature.wordnet import get_wordnet_pos, wn_word_similarity
+
+lmda = 1.1
 # tuning param. indicating the importance of the depth factor
-mu = 1.5
+mu = 0.9
 
 # Matrix storing similarity score, for the purpose of dynamic programming
 matrix = np.empty([1, 1])
@@ -71,30 +73,53 @@ def node_matching_score(node1, node2):
     global matrix
 
     # TODO: node1 == node2 means the production rule and the label are both the same, need to rewrite equal method
-    if node1.is_terminal is True and node2.is_terminal is True:
-        score = delta1 * delta2 * \
-                math.pow(lmda, s1 + s2) * \
-                math.pow(mu, d1 + d2)
-        matrix[node1.index, node2.index] = score
-        return score
-    elif len(node1.children_list) != len(node2.children_list):
-        score = 0
-        matrix[node1.index, node2.index] = score
+    # if node1.is_terminal is True and node2.is_terminal is True:
+    #     score = delta1 * delta2 * \
+    #             math.pow(lmda, s1 + s2) * \
+    #             math.pow(mu, d1 + d2)
+    #     matrix[node1.index, node2.index] = score
+    #     return score
+    # elif len(node1.children_list) != len(node2.children_list):
+    #     score = 0
+    #     matrix[node1.index, node2.index] = score
+    #     return score
+    # else:
+    #     # len(node.children_list) is not size of node
+    #     prefix = math.pow(delta1, eta) * math.pow(delta2, eta) * math.pow(lmda, 2 * eta) * \
+    #              math.pow(mu, eta * (2 - (1 + len(node1.children_list)) * (d1 + d2)))
+    #     for j in range(len(node1.children_list)):
+    #         child1 = node1.children_list[j]
+    #         child2 = node2.children_list[j]
+    #         if np.isnan(matrix[child1.index, child2.index]):
+    #             score *= node_matching_score(node1.children_list[j], node2.children_list[j])
+    #         else:
+    #             score *= matrix[child1.index, child2.index]
+    #     score = prefix * score
+    #     matrix[node1.index, node2.index] = score
+    if not node1.is_matching(node2):
         return score
     else:
-        # len(node.children_list) is not size of node
-        prefix = math.pow(delta1, eta) * math.pow(delta2, eta) * math.pow(lmda, 2 * eta) * \
-                 math.pow(mu, eta * (2 - (1 + len(node1.children_list)) * (d1 + d2)))
-        for j in range(len(node1.children_list)):
-            child1 = node1.children_list[j]
-            child2 = node2.children_list[j]
-            if np.isnan(matrix[child1.index, child2.index]):
-                score *= node_matching_score(node1.children_list[j], node2.children_list[j])
+        if node1.is_terminal and node2.is_terminal:
+            word1 = node1[0]
+            word2 = node2[0]
+            pos1 = get_wordnet_pos(node1.label())
+            pos2 = get_wordnet_pos(node2.label())
+            if pos1 == "" or pos2 == "":
+                return score
+            lemmatizer = WordNetLemmatizer()
+            lemma1 = lemmatizer.lemmatize(word1, pos1)
+            lemma2 = lemmatizer.lemmatize(word2, pos2)
+            tagged_word1 = lemma1 + "." + pos1 + ".1"
+            tagged_word2 = lemma2 + "." + pos2 + ".1"
+            score = wn_word_similarity(tagged_word1, tagged_word2)
+            if score is None:
+                return 0
             else:
-                score *= matrix[child1.index, child2.index]
-        score = prefix * score
-        matrix[node1.index, node2.index] = score
-        return score
+                return score
+        else:
+            for matched_frag in matched_tree_fragments:
+                score *= matching_tree_weight(matched_frag[0], matched_frag[1])
+                return score
 
 
 def similarity_score(tree1, tree2):
@@ -119,6 +144,9 @@ def similarity_score(tree1, tree2):
         for node2 in descendants2:
             # To match index, remember to set root index as 0 -> Done!
             if np.isnan(matrix[node1.index, node2.index]):
+                print(node1, node2)
+                if node1[0] == "good" and node2[0] == "bad":
+                    print(node1, node2, node_matching_score(node1, node2))
                 score += node_matching_score(node1, node2)
             else:
                 score += matrix[node1.index, node2.index]
@@ -148,15 +176,16 @@ def get_syntactic_prase_tree(sentence):
 
 if __name__ == '__main__':
     sentence1 = '(ROOT (S (NP (PRP It)) (VP (VBZ is) (ADJP (RB so) (JJ good))) (. .)))'
-    sentence2 = '(ROOT (S (NP (PRP It)) (VP (VBZ is) (ADJP (RB so) (JJ bad))) (. .)))'
+    # sentence2 = '(ROOT (S (NP (PRP It)) (VP (VBZ is) (ADJP (RB so) (JJ bad))) (. .)))'
+    sentence2 = '(VP (V brought) (NP (D a) (N cat)))'
     from python.src.traditional.pair_feature.structure.node import Node
 
     n1 = Node.fromstring(sentence1)
     n2 = Node.fromstring(sentence2)
 
     # common = get_matched_tree_fragments(n1, n2)
-    score1 = similarity_score(n1, n2)
-    score2 = similarity_score(n1, n1)
+    score1 = normalized_simialrity_score(n1, n2)
+    score2 = normalized_simialrity_score(n1, n1)
     n1.remove()
 
     print("Hello World!")
