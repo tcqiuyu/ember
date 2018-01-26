@@ -136,7 +136,7 @@ class Node(ParentedTree):
     def is_matching(self, another_node):
         return self.label() == another_node.label() and self.production == another_node.production
 
-    def get_tree_fragments(self):
+    def get_tree_fragments_at_root(self):
         frags = [self]
 
         if self.is_terminal:
@@ -159,17 +159,20 @@ class Node(ParentedTree):
                 for leaves in leaves_to_delete:
                     del frag[leaves]
                 frags.append(frag)
+        return frags
 
+    def get_tree_fragments(self):
+        frags = []
         for node in self.subtrees():
-            if node != self:
-                frags.extend(node.get_tree_fragments())
-
+            frags.extend(node.get_tree_fragments_at_root())
         return frags
 
 
 if __name__ == '__main__':
-    tree = Node.fromstring('(ROOT (S (NP (PRP It)) (VP (VBZ is) (ADJP (RB so) (JJ nice))) (. .)))')
+    # tree = Node.fromstring('(ROOT (S (NP (PRP It)) (VP (VBZ is) (ADJP (RB so) (JJ nice))) (. .)))')
+    tree = Node.fromstring('(VP (V brought) (NP (D a) (N cat)))')
     # tree.depth_first_traverse(lambda n: n.get_delta())
     # tree.update_tree()
-    frags = tree.get_tree_fragments()
+    fra = tree.get_tree_fragments()
     print("Finished")
+    tree.draw()
