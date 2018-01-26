@@ -1,5 +1,6 @@
 from nltk.tree import ParentedTree
 from nltk.tree import Tree
+from itertools import combinations
 
 
 class Node(ParentedTree):
@@ -8,8 +9,8 @@ class Node(ParentedTree):
 
     Attributes:
 
-
     """
+
     # delta = 1
     # theta = 1
     # size = 0
@@ -26,6 +27,7 @@ class Node(ParentedTree):
         self.index = 0
         self.children_list = []
         self.is_terminal = None
+        self.production = ()
         super().__init__(node, children)
 
     def _get_node(self):
@@ -90,8 +92,19 @@ class Node(ParentedTree):
             idx += 1
 
     def _update_children(self):
+        if self.is_terminal:
+            self.children_list.append(self[0])
         for tr in self.subtrees(lambda t: t.depth == self.depth + 1):
             self.children_list.append(tr)
+
+    def _update_production(self):
+        children_labels = []
+        for i in self.children_list:
+            if self.is_terminal:
+                children_labels.append(i)
+            else:
+                children_labels.append(i.label())
+        self.production = (self.label(), children_labels)
 
     def update(self):
         child = self[0]
@@ -103,7 +116,7 @@ class Node(ParentedTree):
         self.depth_first_traverse(lambda n: n.update())
         self._update_index()
         self._update_depth()
-        self.depth_first_traverse(lambda n: (n._update_theta(), n._update_children()))
+        self.depth_first_traverse(lambda n: (n._update_theta(), n._update_children(), n._update_production()))
 
     def depth_first_traverse(self, func):
         if type(self) == Node:
@@ -112,9 +125,51 @@ class Node(ParentedTree):
                 if type(subtree) == Node:
                     subtree.depth_first_traverse(func)
 
+    @classmethod
+    def fromstring(cls, s, brackets='()', read_node=None, read_leaf=None, node_pattern=None, leaf_pattern=None,
+                   remove_empty_top_bracketing=False):
+        out = super().fromstring(s, brackets, read_node, read_leaf, node_pattern, leaf_pattern,
+                                 remove_empty_top_bracketing)
+        out.update_tree()
+        return out
+
+    def is_matching(self, another_node):
+        return self.label() == another_node.label() and self.production == another_node.production
+
+    def get_tree_fragments(self):
+        frags = [self]
+
+        if self.is_terminal:
+            frags.append(self[0])
+            return frags
+
+        leaves = []
+
+        for i in range(len(self.leaves())):
+            leaves.append(self.leaf_treeposition(i))
+
+        leaves_combination = []
+        for i in range(1, len(leaves) + 1):
+            iter = combinations(leaves, i)
+            leaves_combination.append(list(iter))
+
+        for temp in leaves_combination:
+            for leaves_to_delete in temp:
+                frag = self.copy(deep=True)
+                for leaves in leaves_to_delete:
+                    del frag[leaves]
+                frags.append(frag)
+
+        for node in self.subtrees():
+            if node != self:
+                frags.extend(node.get_tree_fragments())
+
+        return frags
+
 
 if __name__ == '__main__':
     tree = Node.fromstring('(ROOT (S (NP (PRP It)) (VP (VBZ is) (ADJP (RB so) (JJ nice))) (. .)))')
     # tree.depth_first_traverse(lambda n: n.get_delta())
-    tree.update_tree()
+    # tree.update_tree()
+    frags = tree.get_tree_fragments()
     print("Finished")

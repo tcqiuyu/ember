@@ -23,8 +23,9 @@ def tree_weight(tree_fragment):
            math.pow(mu, tree_fragment.depth)
 
 
-# def matching_tree_score(tree_fragment_1, tree_fragment_2):
-#     return tree_weight(tree_fragment_1) * tree_weight(tree_fragment_2)
+def matching_tree_weight(tree_fragment_1, tree_fragment_2):
+    return tree_weight(tree_fragment_1) * tree_weight(tree_fragment_2)
+
 
 # TODO
 def get_matched_tree_fragments(tree_fragment_1, tree_fragment_2):
@@ -76,6 +77,10 @@ def node_matching_score(node1, node2):
                 math.pow(mu, d1 + d2)
         matrix[node1.index, node2.index] = score
         return score
+    elif len(node1.children_list) != len(node2.children_list):
+        score = 0
+        matrix[node1.index, node2.index] = score
+        return score
     else:
         # len(node.children_list) is not size of node
         prefix = math.pow(delta1, eta) * math.pow(delta2, eta) * math.pow(lmda, 2 * eta) * \
@@ -83,10 +88,10 @@ def node_matching_score(node1, node2):
         for j in range(len(node1.children_list)):
             child1 = node1.children_list[j]
             child2 = node2.children_list[j]
-            if matrix[child1.index, child2.index] is not np.nan:
-                score *= matrix[child1.index, child2.index]
-            else:
+            if np.isnan(matrix[child1.index, child2.index]):
                 score *= node_matching_score(node1.children_list[j], node2.children_list[j])
+            else:
+                score *= matrix[child1.index, child2.index]
         score = prefix * score
         matrix[node1.index, node2.index] = score
         return score
@@ -107,13 +112,12 @@ def similarity_score(tree1, tree2):
     matrix.fill(np.nan)
 
     descendants1 = tree1.subtrees()
-    descendants2 = tree2.subtrees()
     score = 0
 
     for node1 in descendants1:
+        descendants2 = tree2.subtrees()
         for node2 in descendants2:
             # To match index, remember to set root index as 0 -> Done!
-
             if np.isnan(matrix[node1.index, node2.index]):
                 score += node_matching_score(node1, node2)
             else:
@@ -149,9 +153,10 @@ if __name__ == '__main__':
 
     n1 = Node.fromstring(sentence1)
     n2 = Node.fromstring(sentence2)
-    n1.update_tree()
-    n2.update_tree()
 
-    common = get_matched_tree_fragments(n1, n2)
+    # common = get_matched_tree_fragments(n1, n2)
     score1 = similarity_score(n1, n2)
+    score2 = similarity_score(n1, n1)
+    n1.remove()
+
     print("Hello World!")
