@@ -91,3 +91,5 @@ python/output
 __pycache__/
 *.py[cod]
 *$py.class
+
+Resources/

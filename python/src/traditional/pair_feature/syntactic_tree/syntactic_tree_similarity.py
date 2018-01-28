@@ -178,7 +178,7 @@ if __name__ == '__main__':
     sentence1 = '(ROOT (S (NP (PRP It)) (VP (VBZ is) (ADJP (RB so) (JJ good))) (. .)))'
     # sentence2 = '(ROOT (S (NP (PRP It)) (VP (VBZ is) (ADJP (RB so) (JJ bad))) (. .)))'
     sentence2 = '(VP (V brought) (NP (D a) (N cat)))'
-    from python.src.traditional.pair_feature.structure.node import Node
+    from python.src.traditional.pair_feature.syntactic_tree.node import Node
 
     n1 = Node.fromstring(sentence1)
     n2 = Node.fromstring(sentence2)
