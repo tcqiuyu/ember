@@ -1651,10 +1651,13 @@ def align(sentence1, sentence2):
     word_alignments = alignWords(sentence1_lemmas_and_postags, sentence2_lemmas_and_postags, sentence1_parse_result,
                                  sentence2_parse_result)
 
-    word_alignment_tokens = [[str(sentence1_lemmatized[item[0] - 1][2]), str(sentence2_lemmatized[item[1] - 1][2])] for
-                             item in word_alignments]
-
-    return [word_alignments, word_alignment_tokens]
+    word_alignment_tokens = [
+        [[str(sentence1_lemmas_and_postags[item[0] - 1][2]), str(sentence1_lemmas_and_postags[item[0] - 1][4])],
+         [str(sentence2_lemmas_and_postags[item[1] - 1][2]), str(sentence2_lemmas_and_postags[item[1] - 1][4])]] for
+        item in word_alignments]
+    return [word_alignments, word_alignment_tokens,
+            [len(sentence1_lemmatized), len(sentence2_lemmatized)],
+            [[item[3] for item in (sentence1_pos_tagged)], [item[3] for item in sentence2_pos_tagged]]]
 
 
 def _merge_lemmas_and_postags(sentence_lemmatized, sentence_pos_tagged):

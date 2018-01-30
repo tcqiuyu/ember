@@ -286,7 +286,6 @@ def findChildren(dependencyParse, wordIndex, word):
 nlp_server = StanfordNLP()
 
 if __name__ == '__main__':
-
     # nlp_server = StanfordNLP()
     # output = nlp_server.parse("Four men died in an accident.")
     # parsed = parseText("Four men died in an accident.")
@@ -295,10 +294,15 @@ if __name__ == '__main__':
     # pos_tagged = posTag(parsed)
 
     from python.src.traditional.pair_feature.word_alignment.aligner import *
+    from python.src.traditional.pair_feature.word_alignment.similarity import *
 
     sentence1 = "Four men died in an accident."
+    # sentence1 = "Good afternoon!"
     sentence2 = "4 people are dead from a collision."
+    # sentence2 = "Good morning!"
 
     alignments = align(sentence1, sentence2)
     print(alignments[0])
+    a = verb_alignment_similarity(alignments)
+
     print(alignments[1])
