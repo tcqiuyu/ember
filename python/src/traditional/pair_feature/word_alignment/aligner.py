@@ -1,4 +1,4 @@
-from .corenlp import *
+from preprocessing.corenlp import *
 from .util import *
 from .word_utils import *
 

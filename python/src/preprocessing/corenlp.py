@@ -296,6 +296,8 @@ if __name__ == '__main__':
     from python.src.traditional.pair_feature.word_alignment.aligner import *
     from python.src.traditional.pair_feature.word_alignment.similarity import *
 
+    # sentences = ["Four men died in an accident.", "4 people are dead from a collision."]
+    # parseText(sentences)
     sentence1 = "Four men died in an accident."
     # sentence1 = "Good afternoon!"
     sentence2 = "4 people are dead from a collision."
@@ -303,6 +305,7 @@ if __name__ == '__main__':
 
     alignments = align(sentence1, sentence2)
     print(alignments[0])
-    a = verb_alignment_similarity(alignments)
+    a = alignment_similarity(alignments)
+    b = verb_alignment_similarity(alignments, wn.ADJ)
 
     print(alignments[1])
