@@ -1,6 +1,7 @@
 from gensim.models.keyedvectors import KeyedVectors
 import datetime
 import logging
+import numpy as np
 
 
 class WordEmbeddingModelLoader():
@@ -25,16 +26,15 @@ class WordEmbeddingModelLoader():
         return model
 
 
-def word2vec_feature(tokens):
-    pass
+def word_embedding_feature(tokens, model):
+    merged_vectors = np.zeros(model.vector_size)
 
-
-def glove_feature(tokens):
-    pass
-
-
-def paragram_feature(tokens):
-    pass
+    for token in tokens:
+        merged_vectors = np.concatenate((merged_vectors, model[token]))
+    avg = merged_vectors.mean(axis=0)
+    min = merged_vectors.min(axis=0)
+    max = merged_vectors.max(axis=0)
+    return avg, min, max
 
 
 if __name__ == '__main__':
@@ -43,6 +43,6 @@ if __name__ == '__main__':
     # print(os.getcwd())
     # print()
     model_loader = WordEmbeddingModelLoader("/home/yqiu/Dropbox/Workspace/2017/ember")
-    model = model_loader.paragram_ws353
+    paragram = model_loader.paragram_ws353
 
     print(model_loader.paragram_ws353.most_similar(positive=['woman', 'king'], negative=['man']))
