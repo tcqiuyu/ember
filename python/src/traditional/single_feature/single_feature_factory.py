@@ -13,13 +13,11 @@ def dependency_feature(corpus):
     vectorizer = CountVectorizer(tokenizer=(lambda x: x.split(" ")))
     for sentence in corpus:
         dependency_tree = parseText(sentence)['sentences'][0]['dependencies']
-        dependency = ['|'.join([token.split("-")[0].split(":")[0] for token in word_dependency]) for word_dependency in dependency_tree]
+        dependency = ['|'.join([token.split("-")[0].split(":")[0] for token in word_dependency]) for word_dependency in
+                      dependency_tree]
         parsed_corpus.extend(dependency)
     matrix = vectorizer.fit_transform(parsed_corpus).todense()
     return matrix, vectorizer.vocabulary_
-
-
-
 
 
 if __name__ == '__main__':
@@ -27,4 +25,3 @@ if __name__ == '__main__':
     bow_feature(sentences)
     dependency_feature(sentences)
     pass
-
