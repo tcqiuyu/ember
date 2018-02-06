@@ -72,30 +72,6 @@ def node_matching_score(node1, node2):
 
     global matrix
 
-    # TODO: node1 == node2 means the production rule and the label are both the same, need to rewrite equal method
-    # if node1.is_terminal is True and node2.is_terminal is True:
-    #     score = delta1 * delta2 * \
-    #             math.pow(lmda, s1 + s2) * \
-    #             math.pow(mu, d1 + d2)
-    #     matrix[node1.index, node2.index] = score
-    #     return score
-    # elif len(node1.children_list) != len(node2.children_list):
-    #     score = 0
-    #     matrix[node1.index, node2.index] = score
-    #     return score
-    # else:
-    #     # len(node.children_list) is not size of node
-    #     prefix = math.pow(delta1, eta) * math.pow(delta2, eta) * math.pow(lmda, 2 * eta) * \
-    #              math.pow(mu, eta * (2 - (1 + len(node1.children_list)) * (d1 + d2)))
-    #     for j in range(len(node1.children_list)):
-    #         child1 = node1.children_list[j]
-    #         child2 = node2.children_list[j]
-    #         if np.isnan(matrix[child1.index, child2.index]):
-    #             score *= node_matching_score(node1.children_list[j], node2.children_list[j])
-    #         else:
-    #             score *= matrix[child1.index, child2.index]
-    #     score = prefix * score
-    #     matrix[node1.index, node2.index] = score
     if not node1.is_matching(node2):
         return score
     else:
@@ -112,6 +88,7 @@ def node_matching_score(node1, node2):
             tagged_word1 = lemma1 + "." + pos1 + ".1"
             tagged_word2 = lemma2 + "." + pos2 + ".1"
             score = wn_word_similarity(tagged_word1, tagged_word2)
+
             if score is None:
                 return 0
             else:
@@ -144,10 +121,10 @@ def similarity_score(tree1, tree2):
         for node2 in descendants2:
             # To match index, remember to set root index as 0 -> Done!
             if np.isnan(matrix[node1.index, node2.index]):
-                print(node1, node2)
-                if node1[0] == "good" and node2[0] == "bad":
-                    print(node1, node2, node_matching_score(node1, node2))
+                if node_matching_score(node1, node2) is None:
+                    continue
                 score += node_matching_score(node1, node2)
+
             else:
                 score += matrix[node1.index, node2.index]
     return score
@@ -164,28 +141,18 @@ def normalized_simialrity_score(tree1, tree2):
     return similarity_score(tree1, tree2) / math.sqrt(similarity_score(tree1, tree1) * similarity_score(tree2, tree2))
 
 
-# TODO
-def get_syntactic_prase_tree(sentence):
-    """
-
-    :param sentence:
-    :return:
-    """
-    tokened_sentence = word_tokenize(sentence)
-
-
 if __name__ == '__main__':
-    sentence1 = '(ROOT (S (NP (PRP It)) (VP (VBZ is) (ADJP (RB so) (JJ good))) (. .)))'
-    # sentence2 = '(ROOT (S (NP (PRP It)) (VP (VBZ is) (ADJP (RB so) (JJ bad))) (. .)))'
-    sentence2 = '(VP (V brought) (NP (D a) (N cat)))'
+    sentence1 = '(ROOT (S (NP (NNP Amrozi)) (VP (VBD accused) (NP (NP (NP (PRP$ his) (NN brother)) (, ,) (SBAR (WHNP (WP whom)) (S (NP (PRP he)) (VP (VBD called) (S (`` ``) (NP (DT the) (NN witness)) ('' ''))))) (, ,)) (PP (IN of) (S (VP (ADVP (RB deliberately)) (VBG distorting) (NP (PRP$ his) (NN evidence))))))) (. .)))'
+    sentence2 = '(ROOT (S (NP (PRP It)) (VP (VBZ is) (ADJP (RB so) (JJ bad) ('' ''))) (. .)))'
+    # sentence2 = '(VP (V brought) (NP (D a) (N cat)))'
     from python.src.traditional.pair_feature.syntactic_tree.node import Node
 
-    n1 = Node.fromstring(sentence1)
+    # n1 = Node.fromstring(sentence1)
     n2 = Node.fromstring(sentence2)
 
     # common = get_matched_tree_fragments(n1, n2)
-    score1 = normalized_simialrity_score(n1, n2)
-    score2 = normalized_simialrity_score(n1, n1)
-    n1.remove()
+    # score1 = normalized_simialrity_score(n1, n2)
+    # score2 = normalized_simialrity_score(n1, n1)
+    # n1.remove()
 
     print("Hello World!")

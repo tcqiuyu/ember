@@ -4,7 +4,7 @@ import logging
 import numpy as np
 
 
-class WordEmbeddingModelLoader():
+class WordEmbeddingModelLoader:
     def __init__(self, base_path):
         logging.basicConfig(level=logging.DEBUG,
                             format="%(levelname)s: %(asctime)s %(filename)s[line:%(lineno)d] %(message)s")

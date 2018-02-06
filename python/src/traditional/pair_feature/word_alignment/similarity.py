@@ -13,7 +13,7 @@ def alignment_similarity(alignment_result):
     return score
 
 
-def verb_alignment_similarity(alignment_result, pos):
+def pos_alignment_similarity(alignment_result, pos):
     aligned_word_1 = list(filter((lambda x: get_wordnet_pos(x[0][1]) == pos), alignment_result[1]))
     aligned_word_2 = list(filter((lambda x: get_wordnet_pos(x[1][1]) == pos), alignment_result[1]))
     verb_word_1 = list(filter((lambda x: get_wordnet_pos(x) == pos), alignment_result[3][0]))

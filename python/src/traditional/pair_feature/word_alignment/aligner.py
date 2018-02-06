@@ -1635,9 +1635,9 @@ def alignWords(source, target, sourceParseResult, targetParseResult):
     return alignments
 
 
-def align(sentence1, sentence2):
-    sentence1_parse_result = parseText(sentence1)
-    sentence2_parse_result = parseText(sentence2)
+def align(sentence1_parse_result, sentence2_parse_result):
+    # sentence1_parse_result = parseText(sentence1)
+    # sentence2_parse_result = parseText(sentence2)
 
     sentence1_lemmatized = lemmatize(sentence1_parse_result)
     sentence2_lemmatized = lemmatize(sentence2_parse_result)
@@ -1657,7 +1657,7 @@ def align(sentence1, sentence2):
         item in word_alignments]
     return [word_alignments, word_alignment_tokens,
             [len(sentence1_lemmatized), len(sentence2_lemmatized)],
-            [[item[3] for item in (sentence1_pos_tagged)], [item[3] for item in sentence2_pos_tagged]]]
+            [[item[3] for item in sentence1_pos_tagged], [item[3] for item in sentence2_pos_tagged]]]
 
 
 def _merge_lemmas_and_postags(sentence_lemmatized, sentence_pos_tagged):

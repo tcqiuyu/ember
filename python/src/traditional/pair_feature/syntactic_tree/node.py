@@ -129,7 +129,7 @@ class Node(ParentedTree):
 
     @classmethod
     def fromstring(cls, s, brackets='()', read_node=None, read_leaf=None, node_pattern=None, leaf_pattern=None,
-                   remove_empty_top_bracketing=False):
+                   remove_empty_top_bracketing=True):
         out = super().fromstring(s, brackets, read_node, read_leaf, node_pattern, leaf_pattern,
                                  remove_empty_top_bracketing)
         out.update_tree()
@@ -171,7 +171,7 @@ class Node(ParentedTree):
 
 if __name__ == '__main__':
     # tree = Node.fromstring('(ROOT (S (NP (PRP It)) (VP (VBZ is) (ADJP (RB so) (JJ nice))) (. .)))')
-    tree = Node.fromstring('(VP (V brought) (NP (D a) (N cat)))')
+    tree = Node.fromstring("(ROOT (S (NP (NNP Amrozi)) (VP (VBD accused) (NP (NP (NP (PRP$ his) (NN brother)) (, ,) (SBAR (WHNP (WP whom)) (S (NP (PRP he)) (VP (VBD called) (S (`` ``) (NP (DT the) (NN witness)) ('' ''))))) (, ,)) (PP (IN of) (S (VP (ADVP (RB deliberately)) (VBG distorting) (NP (PRP$ his) (NN evidence))))))) (. .)))")
     # tree.depth_first_traverse(lambda n: n.get_delta())
     # tree.update_tree()
     fra = tree.get_tree_fragments()

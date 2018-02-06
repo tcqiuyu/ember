@@ -21,7 +21,7 @@ def ngram_score(tokenlist_1, tokenlist_2, n):
         s2.append(gram)
 
     overlap = set(s1).intersection(s2)
-    if overlap == 0:
+    if len(overlap) == 0:
         return 0
     score = 2 / (len(s1) / len(overlap) + len(s2) / len(overlap))
     return score

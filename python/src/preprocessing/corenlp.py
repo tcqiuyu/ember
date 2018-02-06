@@ -1,6 +1,11 @@
 from pycorenlp import StanfordCoreNLP
 import re
 
+import logging
+
+logging.basicConfig(level=logging.INFO,
+                    format="%(levelname)s: %(asctime)s %(filename)s[line:%(lineno)d] %(message)s")
+
 
 class StanfordNLP:
     def __init__(self):
@@ -9,7 +14,8 @@ class StanfordNLP:
     def parse(self, text):
         return self.server.annotate(text, properties={
             'annotators': 'tokenize,ssplit,pos,depparse,parse,lemma,ner',
-            'outputFormat': 'json'
+            'outputFormat': 'json',
+            'tokenize.options': 'latexQuotes=false'
         })
 
 
@@ -25,9 +31,10 @@ def parseText(raw_sentence):
                           dependency['dependentGloss'] + "-" + str(dependency['dependent'])]
         dependencies.append(dependency_dic)
 
-    parse_tree = re.subn("\n\s*", ", ", parse_result['sentences'][0]['parse'])[0]
+    parse_tree = re.subn("\n\s*", " ", parse_result['sentences'][0]['parse'])[0]
 
     words = []
+    lemmas = []
     for token in parse_result['sentences'][0]['tokens']:
         word = [token['word']]
         attribute = {'NamedEntityTag': token['pos'],
@@ -40,11 +47,13 @@ def parseText(raw_sentence):
 
         word.append(attribute)
         words.append(word)
+        lemmas.append(token['lemma'])
 
     sentence['dependencies'] = dependencies
     sentence['parsetree'] = parse_tree
     sentence['text'] = raw_sentence
     sentence['words'] = words
+    sentence['lemmas'] = lemmas
 
     sentences.append(sentence)
     out['sentences'] = sentences
@@ -298,14 +307,14 @@ if __name__ == '__main__':
 
     # sentences = ["Four men died in an accident.", "4 people are dead from a collision."]
     # parseText(sentences)
-    sentence1 = "Four men died in an accident."
+    sentence1 = 'Amrozi accused his brother, whom he called "the witness", of deliberately distorting his evidence.'
     # sentence1 = "Good afternoon!"
     sentence2 = "4 people are dead from a collision."
     # sentence2 = "Good morning!"
+    parseText(sentence1)
+    # alignments = align(sentence1, sentence2)
+    # print(alignments[0])
+    # a = alignment_similarity(alignments)
+    # b = pos_alignment_similarity(alignments, wn.ADJ)
 
-    alignments = align(sentence1, sentence2)
-    print(alignments[0])
-    a = alignment_similarity(alignments)
-    b = verb_alignment_similarity(alignments, wn.ADJ)
-
-    print(alignments[1])
+    # print(alignments[1])

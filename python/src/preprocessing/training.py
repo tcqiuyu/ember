@@ -2,13 +2,10 @@ import numpy as np
 import os
 import csv
 import logging
+import pickle
 
 training_data_path_base = "../../../data/training/"
-
 training_matrix = []
-
-
-# label_vector =
 
 
 def preprocess_training_data(name):
@@ -68,4 +65,8 @@ if __name__ == '__main__':
     preprocess_training_data('msr')
     preprocess_training_data('sick')
     preprocess_training_data('sts')
-    
+
+    f = open(training_data_path_base + "training_data.pickle", "wb")
+    pickle.dump(training_matrix, f)
+    f.close()
+    # joblib.dump(training_matrix, training_data_path_base + "training_data.matrix")

@@ -1,12 +1,15 @@
 from .config import *
+import os
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
+print(dir_path)
 
 
-def loadPPDB(ppdbFileName='Resources/ppdb-1.0-xxxl-lexical.extended.synonyms.uniquepairs'):
+def loadPPDB(ppdbFileName=dir_path + '/Resources/ppdb-1.0-xxxl-lexical.extended.synonyms.uniquepairs'):
     global ppdbSim
     global ppdbDict
 
     count = 0
-
     ppdbFile = open(ppdbFileName, 'r')
     for line in ppdbFile:
         if line == '\n':

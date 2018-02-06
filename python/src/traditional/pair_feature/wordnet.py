@@ -1,5 +1,7 @@
 import nltk
+import numpy as np
 from nltk.tokenize import word_tokenize
+from nltk.corpus.reader.wordnet import WordNetError
 from nltk.corpus import wordnet as wn
 from nltk.stem import WordNetLemmatizer
 
@@ -24,7 +26,10 @@ def get_wordnet_pos(treebank_tag):
 
 
 def wn_word_similarity(tagged_word1, tagged_word2):
-    return wn.synset(tagged_word1).path_similarity(wn.synset(tagged_word2))
+    try:
+        return wn.synset(tagged_word1).path_similarity(wn.synset(tagged_word2))
+    except WordNetError:
+        return 0
 
 
 def _wn_word_sentence_score(wn_tagged_word, tokened_sentence):
@@ -60,21 +65,17 @@ def _wn_word_sentence_score(wn_tagged_word, tokened_sentence):
     return score
 
 
-def wn_overlap_score(sentence1, sentence2):
+def wn_overlap_score(tokened_sentence1, tokened_sentence2):
     """
     Calculate wordnet-augmented word overlap similarity score between sentences.
     Note: @wn_overlap_score(s1, s2) might not equal to @wn_overlap_score(s2, s1).
-    We calculate harmonic mean of them to get the final similarity score
+    We use @wn_overlap_score_harmonic to calculate harmonic mean of them to get the final similarity score
 
-    :param sentence1:
-    :param sentence2:
+    :param tokened_sentence1:
+    :param tokened_sentence2:
     :return:
     """
     score = 0
-
-    # Tokenize two sentences
-    tokened_sentence1 = word_tokenize(sentence1)
-    tokened_sentence2 = word_tokenize(sentence2)
 
     # Pos-tagged two tokenized sentences
     tagged_wordlist1 = nltk.pos_tag(tokened_sentence1)
@@ -104,7 +105,21 @@ def wn_overlap_score(sentence1, sentence2):
         filtered_wordlist2.append(lemma2)
 
     for wn_tagged_word in filtered_tagged_wordlist1:
-        score += _wn_word_sentence_score(wn.synset(wn_tagged_word), filtered_wordlist2)
+        try:
+            score += _wn_word_sentence_score(wn.synset(wn_tagged_word), filtered_wordlist2)
+        except WordNetError:
+            score += 0
 
-    score = score / len(filtered_wordlist2)
+    if len(filtered_wordlist2) == 0:
+        score = max(score, np.random.uniform(0, 0.1))
+        return score
+    else:
+        score = score / len(filtered_wordlist2)
+    score = max(score, np.random.uniform(0, 0.1))
     return score
+
+
+def wn_overlap_score_harmonic(tokened_sentence1, tokened_sentence2):
+    score1 = wn_overlap_score(tokened_sentence1, tokened_sentence2)
+    score2 = wn_overlap_score(tokened_sentence2, tokened_sentence1)
+    return 2 / ((1 / score1) + (1 / score2))
