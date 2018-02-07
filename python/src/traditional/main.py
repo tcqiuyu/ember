@@ -67,7 +67,7 @@ def save_input_matrices(training_matrix):
           training_path_base + "all_input.pickle")
 
 
-save_input_matrices(training_matrix)
+# save_input_matrices(training_matrix)
 
 logging.info("Start loading input file")
 [corpus, lemma_matrix, parse_tree_matrix, parse_result_matrix, label_matrix] = pload(
@@ -75,14 +75,19 @@ logging.info("Start loading input file")
 logging.info("Loaded!")
 
 # Calculate idf first
+# logging.info("Start calculating idf matrix")
 # idf = idf.inverse_document_frequencies(corpus)
 # pdump(idf, training_path_base + "idf.pickle")
+# logging.info("IDF matrix saved!")
 
 # Pair features #
 # N-gram features and Wordnet Agumented word overlap
 # ngram_features = []
 # wordnet_overlap_feature = []
-# for sentence_pair in lemma_matrix:
+# logging.info("Start calculating N-gram features and Wordnet Agumented word overlap")
+# for idx, sentence_pair in enumerate(lemma_matrix):
+#     if idx % 100 == 0:
+#         logging.info("Parsed " + str(idx) + " sentence pairs")
 #     sentence1 = sentence_pair[0]
 #     sentence2 = sentence_pair[1]
 #     gram1 = ngram.ngram_score(sentence1, sentence2, 1)
@@ -93,36 +98,44 @@ logging.info("Loaded!")
 #     wn_score = wordnet.wn_overlap_score_harmonic(sentence1, sentence2)
 #     wordnet_overlap_feature.append(wn_score)
 # pdump(ngram_features, training_path_base + "ngram_feature.pickle")
+# logging.info("N-gram feature matrix saved!")
 # pdump(wordnet_overlap_feature, training_path_base + "wn_overlap_feature.pickle")
+# logging.info("Wordnet overlap feature matrix saved!")
 
 # Syntactic features
 from traditional.pair_feature.syntactic_tree.node import Node
 from traditional.pair_feature.syntactic_tree import syntactic_tree_similarity
 
 syntactic_features = []
-for sentence_pair in parse_tree_matrix:
+for idx, sentence_pair in enumerate(parse_tree_matrix):
     sentence1 = sentence_pair[0]
     sentence2 = sentence_pair[1]
     node1 = Node.fromstring(sentence1)
     node2 = Node.fromstring(sentence2)
     score = syntactic_tree_similarity.normalized_simialrity_score(node1, node2)
+    # if idx % 100 == 0:
+    logging.info("Parsed " + str(idx) + " syntatic feature ")
     syntactic_features.append(score)
 pdump(syntactic_features, training_path_base + "syntactic_features.pickle")
 
 # Alignment features
-from traditional.pair_feature.word_alignment import aligner
-from traditional.pair_feature.word_alignment.similarity import *
-
-alignment_features = []
-for sentence_pair in parse_result_matrix:
-    sentence1 = sentence_pair[0]
-    sentence2 = sentence_pair[1]
-    alignment_result = aligner.align(sentence1, sentence2)
-    alignment_score = alignment_similarity(alignment_result)
-    noun_alignment_score = pos_alignment_similarity(alignment_result, wn.NOUN)
-    verb_alignment_score = pos_alignment_similarity(alignment_result, wn.VERB)
-    adj_alignment_score = pos_alignment_similarity(alignment_result, wn.ADJ)
-    adv_alignment_score = pos_alignment_similarity(alignment_result, wn.ADV)
-    alignment_features.append(
-        [alignment_score, noun_alignment_score, verb_alignment_score, adj_alignment_score, adv_alignment_score])
-pdump(alignment_features, training_path_base + "alignment_feature.pickle")
+# from traditional.pair_feature.word_alignment import aligner
+# from traditional.pair_feature.word_alignment.similarity import *
+#
+# alignment_features = []
+# logging.info("Start calculating Alignment features")
+# for idx, sentence_pair in enumerate(parse_result_matrix):
+#     if idx % 100 == 0:
+#         logging.info("Parsed " + str(idx) + " alignment features")
+#     sentence1 = sentence_pair[0]
+#     sentence2 = sentence_pair[1]
+#     alignment_result = aligner.align(sentence1, sentence2)
+#     alignment_score = alignment_similarity(alignment_result)
+#     noun_alignment_score = pos_alignment_similarity(alignment_result, wn.NOUN)
+#     verb_alignment_score = pos_alignment_similarity(alignment_result, wn.VERB)
+#     adj_alignment_score = pos_alignment_similarity(alignment_result, wn.ADJ)
+#     adv_alignment_score = pos_alignment_similarity(alignment_result, wn.ADV)
+#     alignment_features.append(
+#         [alignment_score, noun_alignment_score, verb_alignment_score, adj_alignment_score, adv_alignment_score])
+# pdump(alignment_features, training_path_base + "alignment_feature.pickle")
+# logging.info("Alignment feature matrix saved!")

@@ -18,6 +18,8 @@ def pos_alignment_similarity(alignment_result, pos):
     aligned_word_2 = list(filter((lambda x: get_wordnet_pos(x[1][1]) == pos), alignment_result[1]))
     verb_word_1 = list(filter((lambda x: get_wordnet_pos(x) == pos), alignment_result[3][0]))
     verb_word_2 = list(filter((lambda x: get_wordnet_pos(x) == pos), alignment_result[3][1]))
+    if len(verb_word_1) == 0 or len(verb_word_2) == 0:
+        return 0
 
     score = (len(aligned_word_1) + len(aligned_word_2)) / (len(verb_word_1) + len(verb_word_2))
 

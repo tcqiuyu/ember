@@ -15,7 +15,8 @@ class StanfordNLP:
         return self.server.annotate(text, properties={
             'annotators': 'tokenize,ssplit,pos,depparse,parse,lemma,ner',
             'outputFormat': 'json',
-            'tokenize.options': 'latexQuotes=false'
+            'tokenize.options': 'latexQuotes=false',
+            'ssplit.isOneSentence': 'true'
         })
 
 
@@ -307,7 +308,7 @@ if __name__ == '__main__':
 
     # sentences = ["Four men died in an accident.", "4 people are dead from a collision."]
     # parseText(sentences)
-    sentence1 = 'Amrozi accused his brother, whom he called "the witness", of deliberately distorting his evidence.'
+    sentence1 = 'Retailers J.C. Penney Co. Inc. (JCP) and Walgreen Co. (WAG) kick things off on Monday.'
     # sentence1 = "Good afternoon!"
     sentence2 = "4 people are dead from a collision."
     # sentence2 = "Good morning!"

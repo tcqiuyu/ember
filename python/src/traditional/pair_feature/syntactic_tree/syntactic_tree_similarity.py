@@ -138,21 +138,25 @@ def normalized_simialrity_score(tree1, tree2):
     :param tree2:
     :return:
     """
-    return similarity_score(tree1, tree2) / math.sqrt(similarity_score(tree1, tree1) * similarity_score(tree2, tree2))
+    numerator = similarity_score(tree1, tree2)
+    denominator = math.sqrt(similarity_score(tree1, tree1) * similarity_score(tree2, tree2))
+    if numerator == 0:
+        return 0
+    else:
+        return numerator / denominator
 
+    if __name__ == '__main__':
+        sentence1 = """(ROOT (S (NP (NNP Amrozi)) (VP (VBD accused) (NP (NP (NP (PRP$ his) (NN brother)) (, ,) (SBAR (WHNP (WP whom)) (S (NP (PRP he)) (VP (VBD called) (`` ") (NP (DT the) (NN witness)) ('' ")))) (, ,)) (PP (IN of) (S (VP (ADVP (RB deliberately)) (VBG distorting) (NP (PRP$ his) (NN evidence))))))) (. .)))"""
+        sentence2 = "(ROOT (S (NP (PRP It)) (VP (VBZ is) (ADJP (RB so) (JJ bad) ('' ''))) (. .)))"
+        # sentence2 = '(VP (V brought) (NP (D a) (N cat)))'
+        from python.src.traditional.pair_feature.syntactic_tree.node import Node
 
-if __name__ == '__main__':
-    sentence1 = '(ROOT (S (NP (NNP Amrozi)) (VP (VBD accused) (NP (NP (NP (PRP$ his) (NN brother)) (, ,) (SBAR (WHNP (WP whom)) (S (NP (PRP he)) (VP (VBD called) (S (`` ``) (NP (DT the) (NN witness)) ('' ''))))) (, ,)) (PP (IN of) (S (VP (ADVP (RB deliberately)) (VBG distorting) (NP (PRP$ his) (NN evidence))))))) (. .)))'
-    sentence2 = '(ROOT (S (NP (PRP It)) (VP (VBZ is) (ADJP (RB so) (JJ bad) ('' ''))) (. .)))'
-    # sentence2 = '(VP (V brought) (NP (D a) (N cat)))'
-    from python.src.traditional.pair_feature.syntactic_tree.node import Node
+        n1 = Node.fromstring(sentence1)
+        n2 = Node.fromstring(sentence2)
 
-    # n1 = Node.fromstring(sentence1)
-    n2 = Node.fromstring(sentence2)
+        # common = get_matched_tree_fragments(n1, n2)
+        score1 = normalized_simialrity_score(n1, n2)
+        score2 = normalized_simialrity_score(n1, n1)
+        # n1.remove()
 
-    # common = get_matched_tree_fragments(n1, n2)
-    # score1 = normalized_simialrity_score(n1, n2)
-    # score2 = normalized_simialrity_score(n1, n1)
-    # n1.remove()
-
-    print("Hello World!")
+        print("Hello World!")
