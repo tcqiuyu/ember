@@ -2,7 +2,7 @@ from .config import *
 import os
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
-print(dir_path)
+# print(dir_path)
 
 
 def loadPPDB(ppdbFileName=dir_path + '/Resources/ppdb-1.0-xxxl-lexical.extended.synonyms.uniquepairs'):

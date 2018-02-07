@@ -14,6 +14,9 @@ mu = 0.9
 matrix = np.empty([1, 1])
 
 
+# match_matrix = np.empty([1, 1])
+
+
 def tree_weight(tree_fragment):
     """
     tree_weight = theta*lamda^(size)*mu^(depth)
@@ -39,19 +42,53 @@ def get_matched_tree_fragments(tree_fragment_1, tree_fragment_2):
     :return:
     """
     re = []
+    # global match_matrix
 
-    # TODO: Two nested loops is not necessary, there is a faster algorithm to implement this
-    for subtree_1 in tree_fragment_1.subtrees():
-        for subtree_2 in tree_fragment_2.subtrees():
-            if subtree_1 == subtree_2:
-                re.append((subtree_1, subtree_2))
+    s = max(tree_fragment_1.size, tree_fragment_2.size)
+    h = max(tree_fragment_1.height, tree_fragment_2.height)
+
+    # match_matrix = [[[[], []] for i in range(h + 1)] for j in range(s + 1)]
+    match_dict = {}
+    frags1 = tree_fragment_1.subtrees()
+    frags2 = tree_fragment_2.subtrees()
+
+    for frag1 in frags1:
+        size = frag1.size
+        height = frag1.height
+        key = str(size) + "," + str(height)
+        if key not in match_dict:
+            match_dict[key] = [[frag1], []]
+        else:
+            match_dict[key][0].append(frag1)
+        # match_matrix[size][height][0].append(frag1)
+    for frag2 in frags2:
+        size = frag2.size
+        height = frag2.height
+        key = str(size) + "," + str(height)
+        if key not in match_dict:
+            match_dict[key] = [[], [frag2]]
+        else:
+            match_dict[key][1].append(frag1)
+        # match_matrix[size][height][1].append(frag2)
+
+    for key in match_dict:
+        for item1 in match_dict[key][0]:
+            for item2 in match_dict[key][1]:
+                if item1 == item2:
+                    re.append((item1, item2))
     return re
+    # # TODO: Two nested loops is not necessary, there is a faster algorithm to implement this
+    # for subtree_1 in tree_fragment_1.subtrees():
+    #     for subtree_2 in tree_fragment_2.subtrees():
+    #         if subtree_1 == subtree_2:
+    #             re.append((subtree_1, subtree_2))
+    # return re
 
 
 def node_matching_score(node1, node2):
     """
     M(r1,r2) - The multiplication of weights of all matched tree
-    fragments under the roots of r1 and r2. (recursive version)
+    fragments under the roots of r1 and r2.
 
     :param node1:
     :param node2:
@@ -110,7 +147,7 @@ def similarity_score(tree1, tree2):
     # To apply dynamic programming, we should add child index inside a syntactic tree -> Done!
     # Initialize similarity matrix
     global matrix
-    matrix = np.empty([tree1.size, tree2.size])
+    matrix = np.empty([tree1.size + 1, tree2.size + 1])
     matrix.fill(np.nan)
 
     descendants1 = tree1.subtrees()
@@ -145,18 +182,19 @@ def normalized_simialrity_score(tree1, tree2):
     else:
         return numerator / denominator
 
-    if __name__ == '__main__':
-        sentence1 = """(ROOT (S (NP (NNP Amrozi)) (VP (VBD accused) (NP (NP (NP (PRP$ his) (NN brother)) (, ,) (SBAR (WHNP (WP whom)) (S (NP (PRP he)) (VP (VBD called) (`` ") (NP (DT the) (NN witness)) ('' ")))) (, ,)) (PP (IN of) (S (VP (ADVP (RB deliberately)) (VBG distorting) (NP (PRP$ his) (NN evidence))))))) (. .)))"""
-        sentence2 = "(ROOT (S (NP (PRP It)) (VP (VBZ is) (ADJP (RB so) (JJ bad) ('' ''))) (. .)))"
-        # sentence2 = '(VP (V brought) (NP (D a) (N cat)))'
-        from python.src.traditional.pair_feature.syntactic_tree.node import Node
 
-        n1 = Node.fromstring(sentence1)
-        n2 = Node.fromstring(sentence2)
+if __name__ == '__main__':
+    sentence1 = """(ROOT (S (NP (NNP Amrozi)) (VP (VBD accused) (NP (NP (NP (PRP$ his) (NN brother)) (, ,) (SBAR (WHNP (WP whom)) (S (NP (PRP he)) (VP (VBD called) (`` ") (NP (DT the) (NN witness)) ('' ")))) (, ,)) (PP (IN of) (S (VP (ADVP (RB deliberately)) (VBG distorting) (NP (PRP$ his) (NN evidence))))))) (. .)))"""
+    sentence2 = "(ROOT (S (NP (PRP It)) (VP (VBZ is) (ADJP (RB so) (JJ bad) ('' ''))) (. .)))"
+    # sentence2 = '(VP (V brought) (NP (D a) (N cat)))'
+    from python.src.traditional.pair_feature.syntactic_tree.node import Node
 
-        # common = get_matched_tree_fragments(n1, n2)
-        score1 = normalized_simialrity_score(n1, n2)
-        score2 = normalized_simialrity_score(n1, n1)
-        # n1.remove()
+    n1 = Node.fromstring(sentence1)
+    n2 = Node.fromstring(sentence2)
 
-        print("Hello World!")
+    # common = get_matched_tree_fragments(n1, n2)
+    score1 = normalized_simialrity_score(n1, n2)
+    score2 = normalized_simialrity_score(n1, n1)
+    # n1.remove()
+
+    print("Hello World!")

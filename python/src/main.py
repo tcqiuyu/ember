@@ -42,8 +42,14 @@ feature_matrix = []
 # Using Stanford NLP to parsing the sentence pair
 lemma_matrix = []
 parse_tree_matrix = []  # for syntactic parse features
-corpus = []  # for idf
+corpus = [[], []]  # for idf, bow, word embedding
 parse_result_matrix = []  # for alignment features
+dep_matrix = [[], []]
+
+
+def parse_dependency(dep_triple):
+    return ['|'.join([token.split("-")[0].split(":")[0] for token in word_dependency]) for word_dependency in
+            dep_triple]
 
 
 def save_input_matrices(training_matrix):
@@ -56,10 +62,15 @@ def save_input_matrices(training_matrix):
         except Exception:
             logging.warning("Error when parsing index " + str(idx))
             continue
-        corpus.extend([sentence1['sentences'][0]['lemmas'], sentence2['sentences'][0]['lemmas']])
+        corpus[0].append(sentence1['sentences'][0]['text'])
+        corpus[1].append(sentence2['sentences'][0]['text'])
+
+        # corpus.extend([sentence1['sentences'][0]['lemmas'], sentence2['sentences'][0]['lemmas']])
         lemma_matrix.append([sentence1['sentences'][0]['lemmas'], sentence2['sentences'][0]['lemmas']])
         parse_tree_matrix.append([sentence1['sentences'][0]['parsetree'], sentence2['sentences'][0]['parsetree']])
         parse_result_matrix.append([sentence1, sentence2])
+        dep_matrix[0].append(parse_dependency(sentence1['sentences'][0]['dependencies']))
+        dep_matrix[1].append(parse_dependency(sentence2['sentences'][0]['dependencies']))
         label_matrix.append(sentence_pair[1])
         if idx % 100 == 0:
             logging.info('Parsed ' + str(idx) + " sentence pairs")
@@ -67,17 +78,18 @@ def save_input_matrices(training_matrix):
           training_path_base + "all_input.pickle")
 
 
-# save_input_matrices(training_matrix)
+save_input_matrices(training_matrix)
 
 logging.info("Start loading input file")
-[corpus, lemma_matrix, parse_tree_matrix, parse_result_matrix, label_matrix] = pload(
+[corpus, lemma_matrix, parse_tree_matrix, parse_result_matrix, dep_matrix, label_matrix] = pload(
     training_path_base + "all_input.pickle")
 logging.info("Loaded!")
 
 # Calculate idf first
 # logging.info("Start calculating idf matrix")
-# idf = idf.inverse_document_frequencies(corpus)
-# pdump(idf, training_path_base + "idf.pickle")
+# idf_1 = idf.inverse_document_frequencies(corpus[0])
+# idf_2 = idf.inverse_document_frequencies(corpus[1])
+# pdump([idf_1, idf_2], training_path_base + "idf.pickle")
 # logging.info("IDF matrix saved!")
 
 # Pair features #
@@ -103,20 +115,22 @@ logging.info("Loaded!")
 # logging.info("Wordnet overlap feature matrix saved!")
 
 # Syntactic features
-from traditional.pair_feature.syntactic_tree.node import Node
-from traditional.pair_feature.syntactic_tree import syntactic_tree_similarity
-
-syntactic_features = []
-for idx, sentence_pair in enumerate(parse_tree_matrix):
-    sentence1 = sentence_pair[0]
-    sentence2 = sentence_pair[1]
-    node1 = Node.fromstring(sentence1)
-    node2 = Node.fromstring(sentence2)
-    score = syntactic_tree_similarity.normalized_simialrity_score(node1, node2)
-    # if idx % 100 == 0:
-    logging.info("Parsed " + str(idx) + " syntatic feature ")
-    syntactic_features.append(score)
-pdump(syntactic_features, training_path_base + "syntactic_features.pickle")
+# from traditional.pair_feature.syntactic_tree.node import Node
+# from traditional.pair_feature.syntactic_tree import syntactic_tree_similarity
+#
+# syntactic_features = []
+# for idx, sentence_pair in enumerate(parse_tree_matrix):
+#     # if idx <= 247:
+#     #     continue
+#     sentence1 = sentence_pair[0]
+#     sentence2 = sentence_pair[1]
+#     node1 = Node.fromstring(sentence1)
+#     node2 = Node.fromstring(sentence2)
+#     score = syntactic_tree_similarity.normalized_simialrity_score(node1, node2)
+#     if idx % 100 == 0:
+#         logging.info("Parsed " + str(idx) + " syntatic feature ")
+#     syntactic_features.append(score)
+# pdump(syntactic_features, training_path_base + "syntactic_features.pickle")
 
 # Alignment features
 # from traditional.pair_feature.word_alignment import aligner
@@ -139,3 +153,13 @@ pdump(syntactic_features, training_path_base + "syntactic_features.pickle")
 #         [alignment_score, noun_alignment_score, verb_alignment_score, adj_alignment_score, adv_alignment_score])
 # pdump(alignment_features, training_path_base + "alignment_feature.pickle")
 # logging.info("Alignment feature matrix saved!")
+
+
+# Single features #
+# BoW features
+from python.src.traditional.single_feature.single_feature_factory import *
+idf = pload(training_path_base + "idf.pickle")
+idf_1 = idf[0]
+idf_2 = idf[1]
+bow_1 = bow_feature(corpus[0])
+bow_2 = bow_feature(corpus[1])
