@@ -9,3 +9,6 @@ def inverse_document_frequencies(tokenized_documents):
         idf_values[tkn] = 1 + math.log(len(tokenized_documents) / (sum(contains_token)))
     return idf_values
 
+
+if __name__ == '__main__':
+    inverse_document_frequencies([["Hello", "world"], ["Hello", "morning"]])

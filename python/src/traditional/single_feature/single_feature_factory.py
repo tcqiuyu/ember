@@ -21,7 +21,7 @@ def bow_feature(corpus):
 
 
 if __name__ == '__main__':
-    sentences = ["Four men died in an accident.", "4 people are dead from a collision."]
+    sentences = ["Four died men died in an accident.", "4 people are dead from a collision."]
     bow_feature(sentences)
     # dependency_feature(sentences)
     pass

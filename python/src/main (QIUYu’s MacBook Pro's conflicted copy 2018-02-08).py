@@ -35,6 +35,10 @@ training_matrix = pload(training_path_base + "training_data.pickle")
 sentence_pair_matrix = []
 label_matrix = []
 
+# Construct feature matrix
+feature_vec = []
+feature_matrix = []
+
 # Using Stanford NLP to parsing the sentence pair
 lemma_matrix = []
 parse_tree_matrix = []  # for syntactic parse features
@@ -67,28 +71,24 @@ def save_input_matrices(training_matrix):
         parse_result_matrix.append([sentence1, sentence2])
         dep_matrix[0].append(parse_dependency(sentence1['sentences'][0]['dependencies']))
         dep_matrix[1].append(parse_dependency(sentence2['sentences'][0]['dependencies']))
-
         label_matrix.append(sentence_pair[1])
         if idx % 100 == 0:
             logging.info('Parsed ' + str(idx) + " sentence pairs")
-    tokenized_corpus_1 = [lemma_pair[0] for lemma_pair in lemma_matrix]
-    tokenized_corpus_2 = [lemma_pair[1] for lemma_pair in lemma_matrix]
-    tokenized_corpus = [tokenized_corpus_1, tokenized_corpus_2]
-    pdump([corpus, tokenized_corpus, lemma_matrix, parse_tree_matrix, parse_result_matrix, label_matrix],
+    pdump([corpus, lemma_matrix, parse_tree_matrix, parse_result_matrix, label_matrix],
           training_path_base + "all_input.pickle")
 
 
 # save_input_matrices(training_matrix)
 
 logging.info("Start loading input file")
-[corpus, tokenized_corpus, lemma_matrix, parse_tree_matrix, parse_result_matrix, dep_matrix, label_matrix] = pload(
+[corpus, lemma_matrix, parse_tree_matrix, parse_result_matrix, dep_matrix, label_matrix] = pload(
     training_path_base + "all_input.pickle")
 logging.info("Loaded!")
 
 # Calculate idf first
 # logging.info("Start calculating idf matrix")
-# idf_1 = idf.inverse_document_frequencies(tokenized_corpus[0])
-# idf_2 = idf.inverse_document_frequencies(tokenized_corpus[1])
+# idf_1 = idf.inverse_document_frequencies(corpus[0])
+# idf_2 = idf.inverse_document_frequencies(corpus[1])
 # pdump([idf_1, idf_2], training_path_base + "idf.pickle")
 # logging.info("IDF matrix saved!")
 
@@ -159,145 +159,28 @@ logging.info("Loaded!")
 # BoW features
 from python.src.traditional.single_feature.single_feature_factory import *
 
-#
 idf = pload(training_path_base + "idf.pickle")
 idf_1 = idf[0]
 idf_2 = idf[1]
-# corp = corpus[0] + corpus[1]
-# bow = bow_feature(corp)
-# bow_matrix = bow[0]
-# bow_vocab = bow[1]
-# bow_1 = bow_matrix[:len(corpus[0])]
-# bow_2 = bow_matrix[len(corpus[0]):]
-# idf_vector_1 = [0] * bow_1.shape[1]
-# idf_vector_2 = [0] * bow_2.shape[1]
-# for vocab in bow_vocab:
-#     index = bow_vocab[vocab]
-#     try:
-#         vocab_idf_1 = idf_1[vocab]
-#         idf_vector_1[index] = vocab_idf_1
-#         vocab_idf_2 = idf_2[vocab]
-#         idf_vector_2[index] = vocab_idf_2
-#     except KeyError:
-#         pass
-# bow_1 = np.multiply(bow_1, idf_vector_1)
-# bow_2 = np.multiply(bow_2, idf_vector_2)
-# print(bow_1.shape)
-# print(bow_2.shape)
-from sklearn.externals import joblib
+corp = corpus[0] + corpus[1]
+bow = bow_feature(corp)
+bow_matrix = bow[0]
+bow_vocab = bow[1]
+bow_1 = bow_matrix[:len(corpus[0])]
+bow_2 = bow_matrix[len(corpus[0]):]
 
-# # joblib.dump([bow_1, bow_2], training_path_base+"bow.features")
-# pdump([bow_1, bow_2], training_path_base + "bow.pickle")
+print(bow_1.shape)
+print(bow_2.shape)
 
 # Dependency Triple Features
-# dep_1 = dep_matrix[0]
-# dep_2 = dep_matrix[1]
-# deps_corpus = dep_1 + dep_2
-# dep_triple_features = bow_feature(deps_corpus)[0]
-# dep_triple_1 = dep_triple_features[:len(dep_1)]
-# dep_triple_2 = dep_triple_features[len(dep_1):]
-#
-# pdump([dep_triple_1, dep_triple_2], training_path_base + "dep_triple.pickle")
+dep_1 = dep_matrix[0]
+dep_2 = dep_matrix[1]
+deps_corpus = dep_1 + dep_2
+dep_triple_features = bow_feature(deps_corpus)[0]
+dep_triple_1 = dep_triple_features[:len(dep_1)]
+dep_triple_2 = dep_triple_features[len(dep_1):]
+
+print(dep_triple_1.shape)
+print(dep_triple_2.shape)
 
 # Word Embedding Features
-from traditional.single_feature.word_embedding_features import *
-
-# model_loader = WordEmbeddingModelLoader("/home/yqiu/Dropbox/Workspace/2017/ember")
-#
-# # word2vec
-# vector_word2vec = []
-# sentence_vector_1 = []
-# sentence_vector_2 = []
-# for lemma_pair in lemma_matrix:
-#     lemma_1 = lemma_pair[0]
-#     lemma_2 = lemma_pair[1]
-#     sentence_vector_1.append(word_embedding_feature(lemma_1, model_loader.word2vec, idf_1))
-#     sentence_vector_2.append(word_embedding_feature(lemma_2, model_loader.word2vec, idf_2))
-# vector_word2vec.append([sentence_vector_1, sentence_vector_2])
-# pdump(vector_word2vec, training_path_base + "word_embedding_word2vec.pickle")
-#
-# # glove
-# vector_glove = []
-# sentence_vector_1 = []
-# sentence_vector_2 = []
-# for lemma_pair in lemma_matrix:
-#     lemma_1 = lemma_pair[0]
-#     lemma_2 = lemma_pair[1]
-#     sentence_vector_1.append(word_embedding_feature(lemma_1, model_loader.glove, idf_1))
-#     sentence_vector_2.append(word_embedding_feature(lemma_2, model_loader.glove, idf_2))
-# vector_glove.append([sentence_vector_1, sentence_vector_2])
-# pdump(vector_glove, training_path_base + "word_embedding_glove.pickle")
-#
-# # paragram_sl999
-# vector_paragram999 = []
-# sentence_vector_1 = []
-# sentence_vector_2 = []
-# for lemma_pair in lemma_matrix:
-#     lemma_1 = lemma_pair[0]
-#     lemma_2 = lemma_pair[1]
-#     sentence_vector_1.append(word_embedding_feature(lemma_1, model_loader.paragram_sl999, idf_1))
-#     sentence_vector_2.append(word_embedding_feature(lemma_2, model_loader.paragram_sl999, idf_2))
-# vector_paragram999.append([sentence_vector_1, sentence_vector_2])
-# pdump(vector_paragram999, training_path_base + "word_embedding_paragram999.pickle")
-#
-#
-# # paragram_ws353
-# vector_paragram353 = []
-# sentence_vector_1 = []
-# sentence_vector_2 = []
-# for lemma_pair in lemma_matrix:
-#     lemma_1 = lemma_pair[0]
-#     lemma_2 = lemma_pair[1]
-#     sentence_vector_1.append(word_embedding_feature(lemma_1, model_loader.paragram_ws353, idf_1))
-#     sentence_vector_2.append(word_embedding_feature(lemma_2, model_loader.paragram_ws353, idf_2))
-# vector_paragram353.append([sentence_vector_1, sentence_vector_2])
-# pdump(vector_paragram353, training_path_base + "word_embedding_paragram353.pickle")
-
-# Single sentence features dimension deduction
-single_feature_matrix = []
-
-# Loading features
-
-# Bag of words
-bow_feature = pload(training_path_base + "bow.pickle")
-bow_1_feature = np.asarray(bow_feature[0])
-bow_2_feature = np.asarray(bow_feature[1])
-
-# Dependency triple
-dep_feature = pload(training_path_base + "dep_triple.pickle")
-dep_1_feature = np.asarray(dep_feature[0])
-dep_2_feature = np.asarray(dep_feature[1])
-
-# Word embedding features
-word2vec_feature = pload(training_path_base + "word_embedding_word2vec.pickle")
-word2vec_1_feature = word2vec_feature[0][0]
-word2vec_2_feature = word2vec_feature[0][1]
-glove_feature = pload(training_path_base + "word_embedding_glove.pickle")
-glove_1_feature = glove_feature[0][0]
-glove_2_feature = glove_feature[0][1]
-paragram353_feature = pload(training_path_base + "word_embedding_paragram353.pickle")
-paragram353_1_feature = paragram353_feature[0][0]
-paragram353_2_feature = paragram353_feature[0][1]
-paragram999_feature = pload(training_path_base + "word_embedding_paragram999.pickle")
-paragram999_1_feature = paragram999_feature[0][0]
-paragram999_2_feature = paragram999_feature[0][1]
-
-s1 = []
-for f1, f2, f3, f4, f5, f6 in zip(bow_1_feature, dep_1_feature, word2vec_1_feature, glove_1_feature,
-                                  paragram353_1_feature, paragram999_1_feature):
-    s1.append(np.concatenate((f1, f2, f3, f4, f5, f6)))
-
-s2 = []
-for f1, f2, f3, f4, f5, f6 in zip(bow_2_feature, dep_2_feature, word2vec_2_feature, glove_2_feature,
-                                  paragram353_2_feature, paragram999_2_feature):
-    s2.append(np.concatenate((f1, f2, f3, f4, f5, f6)))
-
-from traditional.single_feature.kernels import *
-
-linear = linear_kernel_matrix(s1, s2)
-stat = stat_kernel(s1, s2)
-non_linear = non_linear_kernel(s1, s2)
-pdump([linear, stat, non_linear], training_path_base + "single_feature.pickle")
-
-# Load Single feature matrix
-# single_feature_matrix = pload(training_path_base + "single_feature.pickle")
