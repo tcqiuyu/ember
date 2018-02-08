@@ -48,8 +48,8 @@ dep_matrix = [[], []]
 
 
 def parse_dependency(dep_triple):
-    return ['|'.join([token.split("-")[0].split(":")[0] for token in word_dependency]) for word_dependency in
-            dep_triple]
+    return " ".join(['|'.join([token.split("-")[0].split(":")[0] for token in word_dependency]) for word_dependency in
+                     dep_triple])
 
 
 def save_input_matrices(training_matrix):
@@ -78,7 +78,7 @@ def save_input_matrices(training_matrix):
           training_path_base + "all_input.pickle")
 
 
-save_input_matrices(training_matrix)
+# save_input_matrices(training_matrix)
 
 logging.info("Start loading input file")
 [corpus, lemma_matrix, parse_tree_matrix, parse_result_matrix, dep_matrix, label_matrix] = pload(
@@ -158,8 +158,27 @@ logging.info("Loaded!")
 # Single features #
 # BoW features
 from python.src.traditional.single_feature.single_feature_factory import *
+
 idf = pload(training_path_base + "idf.pickle")
 idf_1 = idf[0]
 idf_2 = idf[1]
-bow_1 = bow_feature(corpus[0])
-bow_2 = bow_feature(corpus[1])
+corp = corpus[0] + corpus[1]
+bow = bow_feature(corp)[0]
+bow_1 = bow[:len(corpus[0])]
+bow_2 = bow[len(corpus[0]):]
+
+print(bow_1.shape)
+print(bow_2.shape)
+
+# Dependency Triple Features
+dep_1 = dep_matrix[0]
+dep_2 = dep_matrix[1]
+deps_corpus = dep_1 + dep_2
+dep_triple_features = bow_feature(deps_corpus)[0]
+dep_triple_1 = dep_triple_features[:len(dep_1)]
+dep_triple_2 = dep_triple_features[len(dep_1):]
+
+print(dep_triple_1.shape)
+print(dep_triple_2.shape)
+
+# Word Embedding Features
