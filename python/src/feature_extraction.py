@@ -34,7 +34,7 @@ def parse_dependency(dep_triple):
                      dep_triple])
 
 
-def save_input_matrices(training_matrix):
+def save_input_matrices(training_matrix, path):
     for idx, sentence_pair in enumerate(training_matrix):
         sentence1 = sentence_pair[0][0]
         sentence2 = sentence_pair[0][1]
@@ -61,10 +61,10 @@ def save_input_matrices(training_matrix):
     tokenized_corpus_2 = [lemma_pair[1] for lemma_pair in lemma_matrix]
     tokenized_corpus = [tokenized_corpus_1, tokenized_corpus_2]
     pdump([corpus, tokenized_corpus, lemma_matrix, parse_tree_matrix, parse_result_matrix, dep_matrix, label_matrix],
-          training_path_base + "all_input.pickle")
+          path)
 
 
-save_input_matrices(training_matrix)
+save_input_matrices(training_matrix, training_path_base + "all_input.pickle")
 
 logging.info("Start loading input file")
 [corpus, tokenized_corpus, lemma_matrix, parse_tree_matrix, parse_result_matrix, dep_matrix, label_matrix] = pload(
@@ -139,7 +139,6 @@ for idx, sentence_pair in enumerate(parse_result_matrix):
         [alignment_score, noun_alignment_score, verb_alignment_score, adj_alignment_score, adv_alignment_score])
 pdump(alignment_features, training_path_base + "alignment_feature.pickle")
 logging.info("Alignment feature matrix saved!")
-
 
 # Single features #
 # BoW features
@@ -224,7 +223,6 @@ for lemma_pair in lemma_matrix:
     sentence_vector_2.append(word_embedding_feature(lemma_2, model_loader.paragram_sl999, idf_2))
 vector_paragram999.append([sentence_vector_1, sentence_vector_2])
 pdump(vector_paragram999, training_path_base + "word_embedding_paragram999.pickle")
-
 
 # paragram_ws353
 vector_paragram353 = []
@@ -330,4 +328,4 @@ feat_all = np.hstack((feat_ngram, feat_wn_overlap, feat_synt_tree, feat_alignmen
 
 label = [float(lab) for lab in label_matrix]
 label = np.asarray(label)
-pdump([feat_all, label], training_path_base+"traditional_features.pickle")
+pdump([feat_all, label], training_path_base + "traditional_features.pickle")
