@@ -1,6 +1,7 @@
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.externals import joblib
 from xgboost import XGBRegressor
+import statistics
 
 
 class EnsembleRegressor:
@@ -35,5 +36,17 @@ class EnsembleRegressor:
     def xgboost(self, feature_matrix, label_matrix):
         self.xgb_regr.fit(feature_matrix, label_matrix)
 
-    def save_model(self):
-        joblib.dump([self.rf_regr, self.gb_regr, self.xgb_regr], 'regressors.model')
+    def predict(self, feature):
+        s1 = self.rf_regr.predict(feature)
+        s2 = self.gb_regr.predict(feature)
+        s3 = self.xgb_regr.predict(feature)
+        return statistics.mean([s1, s2, s3])
+
+    def save_model(self, path):
+        joblib.dump([self.rf_regr, self.gb_regr, self.xgb_regr], path)
+
+    def load_model(self, path):
+        rf_regr, gb_regr, xgb_regr = joblib.load(path)
+        self.rf_regr = rf_regr
+        self.gb_regr = gb_regr
+        self.xgb_regr = xgb_regr
